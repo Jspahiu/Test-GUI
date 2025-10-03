@@ -1,42 +1,44 @@
-import time
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+import time
 
-options = webdriver.ChromeOptions()
-options.binary_location = "/usr/bin/chromium-browser"  # chromium path
-options.add_argument("--headless=new")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
+def search_google(query):
+    # Configure Firefox options
+    options = webdriver.FirefoxOptions()
+    options.binary_location = "/opt/firefox/firefox"  # Path to the Firefox binary you extracted
+    options.add_argument("--headless")                # Run without GUI
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # Start Firefox with GeckoDriver
+    driver = webdriver.Firefox(
+        service=Service(GeckoDriverManager().install()),
+        options=options
+    )
 
-def search_google(query, headless=False):
-    options = webdriver.ChromeOptions()
-    if headless:
-        options.add_argument("--headless=new")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     try:
         driver.get("https://www.google.com")
-        # accept cookies if needed (site dependent) - optional
+        print("Page title:", driver.title)
+
+        # Find the search box
         search = driver.find_element(By.NAME, "q")
         search.send_keys(query)
         search.send_keys(Keys.RETURN)
+
         time.sleep(2)  # wait for results
+
+        # Grab top 10 results
         results = driver.find_elements(By.CSS_SELECTOR, "div.yuRUbf > a")
         for r in results[:10]:
-            href = r.get_attribute("href")
             title = r.text
-            print(title)
-            print(href)
-            print()
+            link = r.get_attribute("href")
+            print(f"{title}\n{link}\n")
+
     finally:
         driver.quit()
 
 if __name__ == "__main__":
-    search_google("python selenium tutorial", headless=False)
+    search_google("python selenium tutorial")
