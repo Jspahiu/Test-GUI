@@ -8,13 +8,16 @@ def google_search(query):
     url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
-    
+
     results = []
-    for g in soup.select("div.yuRUbf > a"):
-        title = g.get_text()
-        link = g.get("href")
-        results.append((title, link))
-    
+    for a in soup.find_all("a"):
+        href = a.get("href")
+        if href and href.startswith("https://") and "google.com" not in href:
+            title = a.get_text()
+            if title.strip():  # ignore empty titles
+                results.append((title, href))
+
+    # print top 10 results
     for i, (title, link) in enumerate(results[:10], 1):
         print(f"{i}. {title}\n{link}\n")
 
