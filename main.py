@@ -7,10 +7,16 @@ import time
 
 def search_google(query):
     options = webdriver.ChromeOptions()
-    options.binary_location = "/usr/bin/chromium-browser"  # Codespaces default Chromium
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless=new")        # run headless
+    options.add_argument("--no-sandbox")          # container safe
+    options.add_argument("--disable-dev-shm-usage") # avoid /dev/shm issues
+    options.add_argument("--disable-gpu")         # disable GPU
+    options.add_argument("--remote-debugging-port=9222") # fixes DevToolsActivePort
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-software-rasterizer")
+
+    # Use Chromium in Codespaces
+    options.binary_location = "/usr/bin/chromium-browser"
 
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()),
